@@ -35,15 +35,17 @@
 
 (defun restclient-http-do (method url headers entity raw)
   "Send ARGS to URL as a POST request."
-  (let* ((url-request-method method)
-		(url-request-extra-headers headers)
-		(url-request-data entity))
-	(setq restclient-within-call t)
-	(url-retrieve url 'restclient-http-handle-response
-				  (list (if restclient-same-buffer-response
-							restclient-same-buffer-response-name
-						  (format "*HTTP %s %s*" method url)) raw)
-				  )))
+  
+  (let ((original-buffer (current-buffer)))
+    (let* ((url-request-method method)
+          (url-request-extra-headers headers)
+          (url-request-data entity))
+     (setq restclient-within-call t)
+     (url-retrieve url 'restclient-http-handle-response
+                   (list (if restclient-same-buffer-response
+                             restclient-same-buffer-response-name
+                           (format "*HTTP %s %s*" method url)) raw (current-buffer))
+                   ))))
 
 (defun restclient-prettify-response ()
   (save-excursion
@@ -105,7 +107,7 @@
 			  (comment-region hstart (point))
 			  (indent-region hstart (point)))))))))
 
-(defun restclient-http-handle-response (status bufname raw)
+(defun restclient-http-handle-response (status bufname raw original-buffer)
   "Switch to the buffer returned by `url-retreive'.
     The buffer contains the raw HTTP response sent by the server."
   (if restclient-same-buffer-response
@@ -116,7 +118,8 @@
   
   (unless raw
 	(restclient-prettify-response))
-  (buffer-enable-undo))
+  (buffer-enable-undo)
+  (switch-to-buffer-other-window original-buffer))
 
 
 (defconst restclient-method-url-regexp
