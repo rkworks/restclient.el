@@ -45,7 +45,7 @@
                    (list (if restclient-same-buffer-response
                              restclient-same-buffer-response-name
                            (format "*HTTP %s %s*" method url)) raw (current-buffer))
-                   ))))
+                   t t))))
 
 (defun restclient-prettify-response ()
   (save-excursion
