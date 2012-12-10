@@ -58,17 +58,18 @@
 
 (defun json-reformat-region (begin end)
   (interactive "r")
-  (save-excursion
-    (save-restriction
-      (narrow-to-region begin end)
-      (goto-char (point-min))
-      (let* ((json-key-type 'string)
-             (json-object-type 'plist)
-             (before (buffer-substring (point-min) (point-max)))
-             (json-tree (json-read-from-string before))
-             after)
-        (setq after (json-reformat:print-value json-tree 0))
-        (delete-region (point-min) (point-max))
-        (insert after)))))
+  (unless (eq begin end)
+    (save-excursion
+                    (save-restriction
+                      (narrow-to-region begin end)
+                      (goto-char (point-min))
+                      (let* ((json-key-type 'string)
+                             (json-object-type 'plist)
+                             (before (buffer-substring (point-min) (point-max)))
+                             (json-tree (json-read-from-string before))
+                             after)
+                        (setq after (json-reformat:print-value json-tree 0))
+                        (delete-region (point-min) (point-max))
+                        (insert after))))))
 
 (provide 'json-reformat)
